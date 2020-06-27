@@ -5,13 +5,12 @@ import { Map, TileLayer, Marker } from 'react-leaflet';
 import { toast } from 'react-toastify';
 import Dropzone from '../../components/Dropzone';
 
-
-import api from '../../services/api';
-import ibge from '../../services/ibge';
-
+import Point from '../../models/Point';
+import PointForm from '../../models/PointForm';
 import Item from '../../models/Item';
 import State from '../../models/State';
 import City from '../../models/City';
+import PointController from '../../controllers/PointController';
 
 import logo from '../../assets/logo.svg';
 import './styles.css';
@@ -21,20 +20,17 @@ const CreatePoint: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
-  const [initialPosition, setInitialPosition] = useState<[number, number]>([0,0]);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    whatsApp: '',
-  });
+  const [initialPosition, setInitialPosition] = useState<[number, number]>([0, 0]);
+  const [pointForm, setPointForm] = useState<PointForm>();
 
   const [selectedFile, setSelectedFile] = useState<File>();
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [selectedState, setSelectedState] = useState<string>('0');
   const [selectedCity, setSelectedCity] = useState<string>('0');
-  const [selectedPosition, setSelectedPosition] = useState<[number, number]>([0,0]);
-  
+  const [selectedPosition, setSelectedPosition] = useState<[number, number]>([0, 0]);
+
   const history = useHistory();
+  const pointController = new PointController();
 
   // Get Current Position
   useEffect(() => {
@@ -65,52 +61,23 @@ const CreatePoint: React.FC = () => {
 
   // Load items
   useEffect(() => {
-    async function loadItems() {
-      const response = await api.get('/items');
-
-      setItems(response.data);
-    }
-
-    loadItems();
+    pointController.loadItems().then(items => {
+      setItems(items);
+    });
   }, []);
 
   // Load UFs
   useEffect(() => {
-    async function loadUfs() {
-      const response = await ibge.get<State[]>(
-        'localidades/estados?orderBy=nome',
-      );
-
-      const states = response.data.map(state => {
-        return {
-          sigla: state.sigla,
-          nome: state.nome,
-        };
-      });
-
+    pointController.loadUfs().then(states => {
       setStates(states);
-    }
-
-    loadUfs();
+    });
   }, []);
 
   // Load Cities
   useEffect(() => {
-    async function loadCities() {
-      if (selectedState === '0') return;
-
-      const response = await ibge.get<City[]>(
-        `localidades/estados/${selectedState}/municipios`,
-      );
-
-      const cityNames = response.data.map(city => {
-        return { nome: city.nome };
-      });
-
-      setCities(cityNames);
-    }
-
-    loadCities();
+    pointController.loadCities(selectedState).then(cites => {
+      setCities(cites);
+    });
   }, [selectedState]);
 
   function handleSelectState(event: ChangeEvent<HTMLSelectElement>) {
@@ -130,7 +97,12 @@ const CreatePoint: React.FC = () => {
   function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
     const { name, value } = event.target;
 
-    setFormData({ ...formData, [name]: value });
+    let point = pointForm ? pointForm : new Object() as PointForm;
+    point[name] = value;
+
+    console.log(point);
+
+    setPointForm(point);
   }
 
   function handleSelectItem(id: number) {
@@ -150,34 +122,36 @@ const CreatePoint: React.FC = () => {
       event.preventDefault();
 
       try {
-        const { name, email, whatsApp } = formData;
         const [latitude, longitude] = selectedPosition;
 
-        const data = new FormData();
+        let point: Point = new Object() as Point;
 
-        data.append('name', name);
-        data.append('email', email);
-        data.append('whatsApp', whatsApp);
-        data.append('latitude', String(latitude));
-        data.append('longitude', String(longitude));
-        data.append('uf', selectedState);
-        data.append('city', selectedCity);
-        data.append('items', selectedItems.join(','));
-
+        point.name = pointForm?.name ? pointForm.name : "";
+        point.email = pointForm?.email ? pointForm.email : "";
+        point.whatsApp = pointForm?.whatsApp ? pointForm.whatsApp : "";
+        point.latitude = latitude;
+        point.longitude = longitude;
+        point.uf = selectedState;
+        point.city = selectedCity;
+        point.items = selectedItems;
+        
         if (selectedFile) {
-          data.append('image', selectedFile);
+          point.image = selectedFile.name;
+        }
+        else{
+          point.image = "";
         }
 
-        await api.post('points', data);
-        toast('✅ Criado com sucesso!', toastOptions);
+        pointController.savePoint(point);
 
+        toast.success('✔️ Sucesso!', toastOptions);
         history.push('/');
       } catch (err) {
         toast.error('❌ Erro!', toastOptions);
       }
     },
     [
-      formData,
+      pointForm,
       selectedCity,
       selectedItems,
       selectedPosition,
@@ -187,7 +161,7 @@ const CreatePoint: React.FC = () => {
     ],
   );
 
-  
+
   return (
     <div id="page-create-point">
       <header>
@@ -200,7 +174,7 @@ const CreatePoint: React.FC = () => {
 
       <form onSubmit={handleSubmit}>
         <h1>Cadastro do <br /> ponto de coleta</h1>
-        
+
         <Dropzone onFileUploaded={setSelectedFile} />
 
         <fieldset>
@@ -255,7 +229,7 @@ const CreatePoint: React.FC = () => {
             <div className="field">
               <label htmlFor="uf">Estado</label>
               <select onChange={handleSelectState} name="uf" id="uf">
-                <option value="0">Selecione um estado</option>
+                <option value="">Selecione um estado</option>
                 {states?.map(state => (
                   <option key={state.sigla} value={state.sigla}>
                     {state.nome}
@@ -266,7 +240,7 @@ const CreatePoint: React.FC = () => {
             <div className="field">
               <label htmlFor="city">Cidade</label>
               <select onChange={handleSelectCity} name="city" id="city">
-                <option value="0">Selecione uma cidade</option>
+                <option value="">Selecione uma cidade</option>
                 {cities.map(city => (
                   <option key={city.nome} value={city.nome}>
                     {city.nome}

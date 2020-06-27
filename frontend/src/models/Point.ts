@@ -8,5 +8,6 @@ interface Point {
   longitude: number;
   city: string;
   uf: string;
+  items: number[];
 }
 export default Point;

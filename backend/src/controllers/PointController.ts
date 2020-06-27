@@ -12,13 +12,13 @@ class PointController {
         .split(",")
         .map((item) => Number(item.trim()));
 
-      points = await knex("points")
-        .join("point_items", "points.id", "=", "point_items.point_id")
-        .whereIn("point_items.item_id", parsedItems)
-        .where("city", String(city))
-        .where("uf", String(uf))
-        .distinct()
-        .select("points.*");
+      let query = knex("points").join("point_items", "points.id", "=", "point_items.point_id");
+      if (items) query.whereIn("point_items.item_id", parsedItems);
+      if (city) query.where("city", String(city));
+      if (uf) query.where("uf", String(uf));
+
+      console.log(`parsedItems : ${items}, city : ${city}, uf : ${uf}`);
+      points = await query.distinct().select("points.*");
 
       const serializedPoints = await Promise.all(
         points.map(async (point) => {
@@ -57,11 +57,13 @@ class PointController {
     }
   }
 
-  async create(request: Request, response: Response) {      
+  async create(request: Request, response: Response) {
     const trx = await knex.transaction();
     try {
+      console.log(request.body);
+
       let point = new Point(
-        "image-fake",
+        request.body.image,
         request.body.name,
         request.body.email,
         request.body.whatsApp,
@@ -87,8 +89,9 @@ class PointController {
 
       return response.json(point);
     } catch (e) {
-      return response.json(e);
+      console.log(e);
       await trx.rollback();
+      return response.json(e);
     }
   }
 }
