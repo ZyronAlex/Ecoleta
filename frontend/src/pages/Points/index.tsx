@@ -2,7 +2,6 @@ import React, { useEffect, useState, ChangeEvent, FormEvent, useCallback } from 
 import { Link, useHistory } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
 import { Map, TileLayer, Marker } from 'react-leaflet';
-import { toast } from 'react-toastify';
 import Dropzone from '../../components/Dropzone';
 
 import Point from '../../models/Point';
@@ -16,7 +15,7 @@ import logo from '../../assets/logo.svg';
 import './styles.css';
 import { LeafletMouseEvent } from 'leaflet';
 
-const CreatePoint: React.FC = () => {
+const Points: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -31,6 +30,17 @@ const CreatePoint: React.FC = () => {
 
   const history = useHistory();
   const pointController = new PointController();
+  
+  // // Toastify configurations
+  // const toastOptions = {
+  //   autoClose: 5000,
+  //   hideProgressBar: false,
+  //   closeOnClick: true,
+  //   pauseOnHover: true,
+  //   draggable: true,
+  //   progress: undefined,
+  // };
+
 
   // Get Current Position
   useEffect(() => {
@@ -41,7 +51,6 @@ const CreatePoint: React.FC = () => {
         setInitialPosition([latitude, longitude]);
       },
       () => {
-        toast.error('❌ Oops! Algo deu errado =/', toastOptions);
       },
       {
         timeout: 30000,
@@ -49,15 +58,6 @@ const CreatePoint: React.FC = () => {
       },
     );
   }, []);
-  // Toastify configurations
-  const toastOptions = {
-    autoClose: 5000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-  };
 
   // Load items
   useEffect(() => {
@@ -94,6 +94,7 @@ const CreatePoint: React.FC = () => {
     setSelectedPosition([event.latlng.lat, event.latlng.lng]);
   }
 
+  
   function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
     const { name, value } = event.target;
 
@@ -143,11 +144,8 @@ const CreatePoint: React.FC = () => {
         }
 
         pointController.savePoint(point);
-
-        toast.success('✔️ Sucesso!', toastOptions);
         history.push('/');
       } catch (err) {
-        toast.error('❌ Erro!', toastOptions);
       }
     },
     [
@@ -275,4 +273,4 @@ const CreatePoint: React.FC = () => {
   );
 };
 
-export default CreatePoint;
+export default Points;

@@ -37,7 +37,7 @@ class PointController {
     return cites;
   }
   async savePoint(point: Point) {
-    return await api.post("points", point);    
+    return await api.post("points", point);
   }
 }
 

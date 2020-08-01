@@ -13,7 +13,7 @@ class PointController {
         .map((item) => Number(item.trim()));
 
       let query = knex("points").join("point_items", "points.id", "=", "point_items.point_id");
-      if (items) query.whereIn("point_items.item_id", parsedItems);
+      query.whereIn("point_items.item_id", parsedItems);
       if (city) query.where("city", String(city));
       if (uf) query.where("uf", String(uf));
 
