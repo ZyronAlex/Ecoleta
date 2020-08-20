@@ -1,6 +1,6 @@
 interface Point {  
   id: number;
-  image: string;
+  image: File;
   name: string;
   email: string;
   whatsApp: string;

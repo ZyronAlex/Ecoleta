@@ -31,17 +31,6 @@ const Points: React.FC = () => {
   const history = useHistory();
   const pointController = new PointController();
   
-  // // Toastify configurations
-  // const toastOptions = {
-  //   autoClose: 5000,
-  //   hideProgressBar: false,
-  //   closeOnClick: true,
-  //   pauseOnHover: true,
-  //   draggable: true,
-  //   progress: undefined,
-  // };
-
-
   // Get Current Position
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -137,10 +126,7 @@ const Points: React.FC = () => {
         point.items = selectedItems;
         
         if (selectedFile) {
-          point.image = selectedFile.name;
-        }
-        else{
-          point.image = "";
+          point.image = selectedFile;
         }
 
         pointController.savePoint(point);

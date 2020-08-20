@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import knex from "../database/connection";
 import Point from "../models/Point";
 import Item from "../models/Item";
+import Config from "../config/application.json";
 
 class PointController {
   async index(request: Request, response: Response) {
@@ -27,7 +28,7 @@ class PointController {
             .join("point_items", "items.id", "=", "point_items.item_id")
             .where("point_items.point_id", point.id)
             .select("items.id", "items.title");
-          return { ...point, items };
+          return { ...point, image_url: Config.BaseUrl + `/uploads/${point.image}`, items };
         })
       );
 
@@ -51,7 +52,7 @@ class PointController {
         .where("point_items.point_id", id)
         .select("items.id", "items.title");
 
-      return response.json({ ...point, items });
+      return response.json({ ...point, image_url: Config.BaseUrl +`/uploads/${point.image}`, items });
     } catch (e) {
       return response.json(e);
     }
@@ -63,7 +64,7 @@ class PointController {
       console.log(request.body);
 
       let point = new Point(
-        request.body.image,
+        request.file.filename,
         request.body.name,
         request.body.email,
         request.body.whatsApp,
