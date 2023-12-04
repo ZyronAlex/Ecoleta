@@ -12,7 +12,7 @@
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Como Usar](#como-usar)
 - [Como Contribuir](#como-contribuir)
-
+- 
 <a id="sobre"></a>
 
 ## :bookmark: Sobre
@@ -108,6 +108,14 @@ As aulas foram ministradas pelo mestre **[Diego Fernandes](https://github.com/di
 ## :memo: License
 
 Esse projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE.md) para mais detalhes.
+
+
+ :placard: Vitrine.Dev |     |
+| -------------  | --- |
+| :sparkles: Nome        | **Ecoleta**
+| :label: Tecnologias | [TypeScript](https://www.typescriptlang.org/), [Node.js](https://nodejs.org/en/), [ReactJS](https://reactjs.org/), [React Native](https://reactnative.dev/)
+| :rocket: URL         | 
+| :fire: Desafio     | [Rocketseat](https://rocketseat.com.br/).
 
 ---
 
