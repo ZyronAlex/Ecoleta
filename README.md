@@ -40,7 +40,7 @@ O projeto foi desenvolvido utilizando as seguintes tecnologias
 
 ## :heavy_check_mark: :computer: Resultado Web
 
-- O layout está disponível no **[Figma](https://www.figma.com/file/1SxgOMojOB2zYT0Mdk28lB/)**;
+- O layout está disponível no **[Figma](https://www.figma.com/file/1SxgOMojOB2zYT0Mdk28lB/#vitrinedev)**;
 
 <h1 align="center">
     <img alt="Web" src=".github/Video.gif" width="900px">
